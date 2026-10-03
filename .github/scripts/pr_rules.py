@@ -153,7 +153,16 @@ generated = "\n" + "\n".join(items) + "\n" if items else "\n"
 if CHANGES.search(body):
     new_body = CHANGES.sub(lambda m: m.group(1) + generated + m.group(3), body, count=1)
 else:
-    new_body = body.rstrip("\n") + "\n\n<!-- section:changes -->" + generated + "<!-- /section:changes -->\n"
+    # A marker was deleted: remove the remaining one and put the section back under its heading
+    # ("## Izmjene" / "## Changes"), or add the heading if it was deleted as well
+    rest = re.sub(r"<!--\s*/?section:changes\s*-->[ \t]*\n?", "", body)
+    block = "<!-- section:changes -->" + generated + "<!-- /section:changes -->"
+    heading = re.search(r"^##[ \t]*(Izmjene|Changes)[ \t]*$", rest, re.M)
+    if heading:
+        new_body = rest[:heading.end()] + "\n" + block + rest[heading.end():]
+    else:
+        title = "## Izmjene" if re.search(r"^##[ \t]*Opis[ \t]*$", rest, re.M) else "## Changes"
+        new_body = rest.rstrip("\n") + "\n\n" + title + "\n" + block + "\n"
 if new_body != body:
     patch(f"/repos/{REPO}/pulls/{PR}", {"body": new_body})
     print("OK   changes section filled from the commit messages")
