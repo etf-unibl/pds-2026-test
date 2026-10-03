@@ -6,14 +6,12 @@ U uputstvima se koriste sljedeće oznake koje je potrebno zamijeniti stvarnim vr
 
 | Oznaka | Značenje |
 | ------ | ------ |
-| `<organizacija>` | *GitHub* organizacija u kojoj se nalazi repozitorijum kursa |
-| `<repozitorijum>` | naziv repozitorijuma kursa |
 | `<N>` | broj zadatka (*issue*) na *GitHub* platformi, npr. `55` |
 
 ### 1. Priprema naloga i pristupa
 
 1. Napravite nalog na [*GitHub*](https://github.com) platformi (ukoliko ga već nemate) i dostavite korisničko ime predmetnom nastavniku.
-2. Prihvatite pozivnicu za pristup repozitorijumu kursa. Pozivnica stiže na email adresu povezanu sa nalogom, a vidljiva je i na stranici `https://github.com/<organizacija>/<repozitorijum>/invitations`.
+2. Prihvatite pozivnicu za pristup repozitorijumu kursa. Pozivnica stiže na email adresu povezanu sa nalogom, a vidljiva je i na stranici `https://github.com/etf-unibl/pds-2026-test/invitations`.
 3. Instalirajte potrebne alate prema uputstvu [Instalacija alata](tools-setup.md).
 4. Podesite *Git* alat i SSH pristup, a zatim klonirajte repozitorijum prema uputstvu [Podešavanje Git okruženja](git-setup.md).
 

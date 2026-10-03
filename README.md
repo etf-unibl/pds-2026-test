@@ -1,9 +1,4 @@
-<!-- template:begin -->
-> **Šablonski repozitorijum.** Repozitorijum kursa se kreira opcijom **Use this template &rarr; Create a new repository** (uz označenu opciju **Include all branches**). Oznake (organizacija, repozitorijum, godina, naziv kursa) se popunjavaju automatski prilikom kreiranja, a ovo obavještenje i uputstvo za nastavnika se uklanjaju. Postupak je opisan u uputstvu [Priprema repozitorijuma kursa](docs/instructor/course-setup.md).
-<!-- template:end -->
-
-<!-- TODO (nastavnik): naziv kursa i godina izvođenja -->
-# <Naziv kursa>
+# PDS-2026-TEST
 
 **Uputstva:**
 

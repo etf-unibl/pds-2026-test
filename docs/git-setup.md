@@ -62,13 +62,13 @@ Ako radite na više računara, postupak generisanja i dodavanja ključa ponavlja
 Adresa repozitorijuma za SSH pristup dobija se klikom na dugme **Code &rarr; SSH** na početnoj stranici repozitorijuma. Repozitorijum se klonira komandom:
 
 ```
-git clone git@github.com:<organizacija>/<repozitorijum>.git
+git clone git@github.com:etf-unibl/pds-2026-test.git
 ```
 
 *Git* pravi folder sa nazivom repozitorijuma u folderu iz kojeg je komanda pokrenuta. Sve naredne komande izvršavaju se unutar tog foldera:
 
 ```
-cd <repozitorijum>
+cd pds-2026-test
 ```
 
 Rješenja zadataka se predaju na granu `assignments`, pa se nakon kloniranja potrebno prebaciti na nju:

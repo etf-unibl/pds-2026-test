@@ -1,6 +1,6 @@
 ## Dokumentovanje dizajna
 
-Svaki dizajn mora biti dokumentovan posebnim komentarima u VHDL opisu, iz kojih alat [*Doxygen*](https://www.doxygen.nl) generiše HTML dokumentaciju. Dokumentacija se automatski generiše i objavljuje na adresi `https://<organizacija>.github.io/<repozitorijum>/` nakon svake integracije u granu `assignments` ([Automatske provjere](automated-checks.md#dokumentacija-na-github-pages)). **Dokumentovanje dizajna je obavezno i ocjenjuje se.**
+Svaki dizajn mora biti dokumentovan posebnim komentarima u VHDL opisu, iz kojih alat [*Doxygen*](https://www.doxygen.nl) generiše HTML dokumentaciju. Dokumentacija se automatski generiše i objavljuje na adresi `https://etf-unibl.github.io/pds-2026-test/` nakon svake integracije u granu `assignments` ([Automatske provjere](automated-checks.md#dokumentacija-na-github-pages)). **Dokumentovanje dizajna je obavezno i ocjenjuje se.**
 
 Ovo uputstvo je sažetak dijela *Doxygen* dokumentacije koji se odnosi na VHDL ([Documenting the code: VHDL](https://www.doxygen.nl/manual/docblocks.html#vhdlblocks)).
 

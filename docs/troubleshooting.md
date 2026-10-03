@@ -6,7 +6,7 @@
 SSH ključ nije dodat na *GitHub* ili se ne koristi odgovarajući ključ. Provjerite komandom `ssh -T git@github.com` i ponovite korake iz uputstva [Podešavanje Git okruženja](git-setup.md). Na *Windows* platformi provjerite da li se ključ nalazi u folderu `C:\Users\<korisnik>\.ssh`.
 
 **`ERROR: Repository not found`**
-Pozivnica za repozitorijum nije prihvaćena ili je adresa repozitorijuma pogrešna. Provjerite pozivnice na stranici `https://github.com/<organizacija>/<repozitorijum>/invitations`.
+Pozivnica za repozitorijum nije prihvaćena ili je adresa repozitorijuma pogrešna. Provjerite pozivnice na stranici `https://github.com/etf-unibl/pds-2026-test/invitations`.
 
 **`Permission to ... denied` prilikom `git push`**
 Nalog nema pravo pisanja u repozitorijum. Obratite se predmetnom nastavniku.
@@ -96,7 +96,7 @@ Zadatak nema odgovarajuću labelu ili ima pogrešnu. Obavijestite predmetnog nas
 Naslov mora biti tačno `Issue #<N> : <naslov zadatka>`, sa originalnim naslovom zadatka. Ispravite ga opcijom **Edit** pored naslova, čime se provjere ponovo pokreću.
 
 **Posao `pr-checks` prijavljuje da opis ne prati šablon**
-Opis mora sadržati popunjene sekcije *Opis* i *Izmjene* i sve označene stavke provjere, a oznake sekcija (komentari oblika `<!-- section:... -->` i `<!-- check:... -->`) ne smiju biti obrisane. Ispravite opis (**...** &rarr; **Edit**). Ako su oznake obrisane, kopirajte kompletan šablon iz fajla [`.github/pull_request_template.md`](https://github.com/<organizacija>/<repozitorijum>/blob/main/.github/pull_request_template.md) na grani `main` (dugme **Raw** prikazuje i komentare) i ponovo upišite sadržaj sekcija.
+Opis mora sadržati popunjene sekcije *Opis* i *Izmjene* i sve označene stavke provjere, a oznake sekcija (komentari oblika `<!-- section:... -->` i `<!-- check:... -->`) ne smiju biti obrisane. Ispravite opis (**...** &rarr; **Edit**). Ako su oznake obrisane, kopirajte kompletan šablon iz fajla [`.github/pull_request_template.md`](https://github.com/etf-unibl/pds-2026-test/blob/main/.github/pull_request_template.md) na grani `main` (dugme **Raw** prikazuje i komentare) i ponovo upišite sadržaj sekcija.
 
 **Posao `pr-checks` prijavljuje da zadatak nije dodijeljen autoru**
 U naslovu je naveden broj tuđeg zadatka ili zadatak nije dodijeljen vama. Provjerite broj u naslovu, a ako je ispravan, obavijestite predmetnog nastavnika.

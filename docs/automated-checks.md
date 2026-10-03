@@ -61,4 +61,4 @@ Ako provjera dugo stoji u stanju čekanja (*Queued*), moguće je da računar za 
 
 ### Dokumentacija na GitHub Pages
 
-Nakon svake integracije u granu `assignments`, iz komentara u VHDL opisima automatski se generiše dokumentacija alatom *Doxygen* i objavljuje na adresi `https://<organizacija>.github.io/<repozitorijum>/`. Dokumentovanje dizajna je obavezno i ocjenjuje se, a postupak je opisan u uputstvu [Dokumentovanje dizajna](design-documentation.md). Na objavljenoj stranici provjerite da li je dokumentacija vašeg dizajna potpuna i ispravno prikazana.
+Nakon svake integracije u granu `assignments`, iz komentara u VHDL opisima automatski se generiše dokumentacija alatom *Doxygen* i objavljuje na adresi `https://etf-unibl.github.io/pds-2026-test/`. Dokumentovanje dizajna je obavezno i ocjenjuje se, a postupak je opisan u uputstvu [Dokumentovanje dizajna](design-documentation.md). Na objavljenoj stranici provjerite da li je dokumentacija vašeg dizajna potpuna i ispravno prikazana.
