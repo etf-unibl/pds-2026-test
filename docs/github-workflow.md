@@ -79,10 +79,11 @@ Kada je rješenje spremno za pregled i sve izmjene su poslate (`git push`):
 3. Provjerite naslov: mora biti tačno `Issue #<N> : <naslov zadatka>`. Ako grana sadrži jedan komit, *GitHub* kao naslov predlaže prvi red njegove poruke, pa je naslov već ispravan ako je i poruka komita ispravna. Ako komita ima više, *GitHub* predlaže naslov napravljen od naziva grane (npr. `55 create nand2 circuit`), koji je potrebno zamijeniti.
 4. Polje za opis je automatski popunjeno šablonom *pull request*-a. U njemu:
    - u sekciju *Opis* upišite kratak opis rješenja (šta dizajn radi i kako je realizovan),
-   - u sekciju *Izmjene* upišite listu izmjena, po jednu u liniji koja počinje sa `- ` (mogu se prepisati stavke iz poruka komita),
    - u sekciji *Provjera* označite stavke ([x]), i to tek kada su zaista provjerene. Stavke se mogu označiti i klikom na kvadratić, nakon kreiranja *pull request*-a.
 
-   Komentare oblika `<!-- ... -->` ne brišite: po njima automatska provjera prepoznaje sekcije, a na stranici *pull request*-a se ne prikazuju.
+   Sekciju *Izmjene* ne treba popunjavati: automatska provjera je popunjava stavkama (`- ...`) iz poruka svih komita i osvježava je nakon svakog `git push`. Ako grana ima jedan komit, *GitHub* opis tog komita upisuje iznad šablona; taj tekst možete obrisati ili iskoristiti za sekciju *Opis*.
+
+   U šablonu su komentari (`<!-- ... -->`), koji se na stranici *pull request*-a ne prikazuju. Komentari sa oznakama `section:...` i `check:...` označavaju sekcije za automatsku provjeru i ne brišu se; ostali komentari su uputstva i mogu se obrisati.
 5. Kliknite na **Create pull request**.
 6. Prebacite zadatak u kolonu *In Review*.
 

@@ -60,12 +60,18 @@ jobs:
         run: bash .github/scripts/classify.sh
 
   # Checks the submission rules: title, branch name, assignee, changed files, signed-off commits,
-  # commit message format and pull request description (see .github/scripts/pr_rules.py).
-  # Runs the script of the main branch and only reads data through the API.
+  # commit message format and pull request description (see .github/scripts/pr_rules.py), after
+  # filling the "changes" section of the description from the commit messages. Runs the script of
+  # the main branch and never runs code of the pull request.
   pr-checks:
     needs: verif-setup
     if: ${{ github.event_name == 'pull_request_target' }}
     runs-on: ubuntu-24.04
+    # Write access to the pull request only to fill the changes section of its description
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v7

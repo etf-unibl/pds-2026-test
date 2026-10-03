@@ -13,7 +13,7 @@ Na osnovu labele automatske provjere određuju da li se radi o probnom zadatku i
 
 ### Šta je potrebno predati
 
-U folderu `assignments/<N>`, gdje je `<N>` broj probnog zadatka, potrebno je predati fajl `test.vhd` sa opisom jednostavnog kola po izboru (npr. NAND kolo sa dva ulaza). Fajl treba da sadrži deklaraciju entiteta i arhitekturu, da se prevodi bez grešaka (standard VHDL-93), da bude formatiran u skladu sa uputstvom [Pravila za formatiranje VHDL opisa](vhdl-code-style.md) i dokumentovan prema uputstvu [Dokumentovanje dizajna](design-documentation.md).
+U folderu `assignments/<N>`, gdje je `<N>` broj probnog zadatka, potrebno je predati fajl `test.vhd` sa opisom jednostavnog kola po izboru (npr. NAND kolo sa dva ulaza). Entitet se obavezno zove `test` (a u zaglavlju fajla naziv jedinice `TEST`), jer pravila stila zahtijevaju da naziv fajla bude jednak nazivu entiteta. Fajl treba da sadrži deklaraciju entiteta i arhitekturu, da se prevodi bez grešaka (standard VHDL-93), da bude formatiran u skladu sa uputstvom [Pravila za formatiranje VHDL opisa](vhdl-code-style.md) i dokumentovan prema uputstvu [Dokumentovanje dizajna](design-documentation.md).
 
 ```
 assignments/
@@ -61,7 +61,7 @@ Probni zadatak je završen kada ga nastavnik pregleda i integriše. Nakon toga s
 ### Česte greške u probnom zadatku
 
 - Naziv foldera ne odgovara broju zadatka ili sadrži znak `#`.
-- Fajl nije nazvan tačno `test.vhd` (npr. `Test.vhd` ili `test.vhdl`).
+- Fajl nije nazvan tačno `test.vhd` (npr. `Test.vhd` ili `test.vhdl`) ili se entitet ne zove `test` (posao `linter` tada prijavljuje grešku `pds_002 [FileName]`).
 - Naslov *pull request*-a nije identičan obliku `Issue #<N> : <naslov zadatka>`.
 - Grana je kreirana iz grane `main` umjesto iz grane `assignments` ili njen naziv ne počinje brojem zadatka.
 - Komit nije potpisan (izostavljena je opcija `-s`).

@@ -12,12 +12,14 @@ The rules (see docs/assignment-submission.md):
          <empty line>
          - change
          ...
-  7. the description follows the pull request template: the sections marked with
-     <!-- section:summary --> and <!-- section:changes --> are filled in and every line
-     marked with <!-- check:... --> is ticked ([x]).
+  7. the description follows the pull request template: the section marked with
+     <!-- section:summary --> is filled in and every line marked with <!-- check:... --> is
+     ticked ([x]).
 
-All broken rules are reported, each as a separate error. The script only reads data through the
-GitHub API; it never runs code of the pull request.
+Before checking, the script fills the section marked with <!-- section:changes --> with the
+"- " items of all commit messages (and adds the section if it is missing), so students do not
+have to repeat them; this is the only change it makes. All broken rules are reported, each as
+a separate error. The script never runs code of the pull request.
 
 Environment: GITHUB_TOKEN, GITHUB_REPOSITORY, ISSUE, PR (pull request number)
 """
@@ -49,6 +51,14 @@ def get(path):
         if len(data) < 100:
             return out
         page += 1
+
+
+def patch(path, data):
+    req = urllib.request.Request(f"{API}{path}", data=json.dumps(data).encode(), method="PATCH", headers={
+        "Authorization": "Bearer " + os.environ["GITHUB_TOKEN"],
+        "Accept": "application/vnd.github+json", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req) as r:
+        return json.load(r)
 
 
 def norm(text):
@@ -102,7 +112,7 @@ else:
 SUBJECT = re.compile(r"^Issue #(\d+) : (.+)$")
 ITEM = re.compile(r"^\s*-\s+\S")
 TRAILER = re.compile(r"^[A-Za-z-]+: ")
-unsigned, bad_format = [], []
+unsigned, bad_format, items = [], [], []
 for c in get(f"/repos/{REPO}/pulls/{PR}/commits"):
     if len(c["parents"]) > 1:
         continue
@@ -120,8 +130,10 @@ for c in get(f"/repos/{REPO}/pulls/{PR}/commits"):
         problems.append(f"first line must be '{expected_title}'")
     if len(lines) > 1 and lines[1].strip():
         problems.append("second line is not empty")
-    if not any(ITEM.match(l) for l in lines[2:] if not TRAILER.match(l)):
+    commit_items = [l.strip() for l in lines[2:] if ITEM.match(l) and not TRAILER.match(l)]
+    if not commit_items:
         problems.append("no list of changes ('- ' lines)")
+    items += [i for i in commit_items if i not in items]
     if problems:
         bad_format.append(f"{sha} ({'; '.join(problems)})")
 if unsigned:
@@ -134,16 +146,26 @@ if bad_format:
 else:
     ok("all commit messages follow the format")
 
-# 7. Description
+# 7. Description; the changes section is filled from the commits first
 body = (pr["body"] or "").replace("\r\n", "\n")
+CHANGES = re.compile(r"(<!--\s*section:changes\s*-->)(.*?)(<!--\s*/section:changes\s*-->)", re.S)
+generated = "\n" + "\n".join(items) + "\n" if items else "\n"
+if CHANGES.search(body):
+    new_body = CHANGES.sub(lambda m: m.group(1) + generated + m.group(3), body, count=1)
+else:
+    new_body = body.rstrip("\n") + "\n\n<!-- section:changes -->" + generated + "<!-- /section:changes -->\n"
+if new_body != body:
+    patch(f"/repos/{REPO}/pulls/{PR}", {"body": new_body})
+    print("OK   changes section filled from the commit messages")
+    body = new_body
+
 sections = dict(re.findall(r"<!--\s*section:(\w+)\s*-->(.*?)<!--\s*/section:\1\s*-->", body, re.S))
 checks = re.findall(r"^\s*[-*]\s*\[( |x|X)\].*?<!--\s*check:(\w+)\s*-->", body, re.M)
 description = []
-for name in ("summary", "changes"):
-    if name not in sections:
-        description.append(f"section '{name}' is missing")
-    elif not re.sub(r"<!--.*?-->", "", sections[name], flags=re.S).strip(" \n-"):
-        description.append(f"section '{name}' is empty")
+if "summary" not in sections:
+    description.append("section 'summary' (description of the solution) is missing")
+elif not re.sub(r"<!--.*?-->", "", sections["summary"], flags=re.S).strip():
+    description.append("section 'summary' (description of the solution) is empty")
 if not checks:
     description.append("the check list is missing")
 unticked = [name for state, name in checks if state == " "]

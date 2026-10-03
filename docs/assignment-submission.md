@@ -61,7 +61,7 @@ Format poruke svakog komita u *pull request*-u provjerava se automatski: prvi re
 - Naslov *pull request*-a je identičan prvom redu poruke komita: `Issue #<N> : <naslov zadatka>`.
 - Koriste se tačan broj i originalni naslov zadatka, bez ikakvih dodataka. Automatska provjera poredi naslov sa naslovom zadatka (razlike u broju razmaka se zanemaruju).
 - Odredišna grana (**base**) je `assignments`.
-- Opis prati šablon *pull request*-a: sekcije *Opis* (kratak opis rješenja) i *Izmjene* (lista izmjena) su popunjene, a sve stavke u sekciji *Provjera* su označene ([x]). Oznake sekcija u obliku komentara (npr. `<!-- section:summary -->`) ne smiju se brisati, jer po njima automatska provjera prepoznaje sekcije.
+- Opis prati šablon *pull request*-a: sekcija *Opis* (kratak opis rješenja) je popunjena, a sve stavke u sekciji *Provjera* su označene ([x]). Sekciju *Izmjene* automatska provjera popunjava iz poruka komita. Komentari sa oznakama sekcija (npr. `<!-- section:summary -->`, `<!-- check:style -->`) ne smiju se brisati, jer po njima automatska provjera prepoznaje sekcije; ostali komentari mogu se obrisati.
 - Stavka provjere označava se tek kada je ono što opisuje zaista provjereno.
 
 Postupak otvaranja *pull request*-a i popunjavanja šablona opisan je u uputstvu [Proces rada u GitHub okruženju](github-workflow.md#otvaranje-pull-request-a). Ako su naslov ili opis pogrešni, ispravite ih na stranici *pull request*-a (**Edit** pored naslova, odnosno **...** &rarr; **Edit** na opisu): izmjena automatski ponovo pokreće provjere.

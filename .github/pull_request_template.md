@@ -1,4 +1,4 @@
-<!-- Popunite sekcije "Opis" i "Izmjene" i označite stavke provjere ([x]) tek kada ste ih zaista provjerili. Naslov mora biti tačno: Issue #<N> : <naslov zadatka>. Oznake sekcija (komentare) ne brišite, jer po njima automatska provjera prepoznaje sekcije. -->
+<!-- Upišite kratak opis rješenja u sekciju "Opis" i označite stavke provjere ([x]) tek kada ste ih zaista provjerili. Sekcija "Izmjene" popunjava se automatski iz poruka komita. Naslov mora biti tačno: Issue #<N> : <naslov zadatka>. Komentari sa oznakama section i check označavaju sekcije za automatsku provjeru i ne brišu se; ostali komentari (uputstva, kao ovaj) mogu se obrisati. -->
 
 ## Opis
 <!-- section:summary -->
@@ -7,7 +7,7 @@
 
 ## Izmjene
 <!-- section:changes -->
-<!-- Lista izmjena, po jedna u liniji, npr.: - Added entity and architecture -->
+<!-- Popunjava se automatski iz poruka komita. -->
 <!-- /section:changes -->
 
 ## Provjera
