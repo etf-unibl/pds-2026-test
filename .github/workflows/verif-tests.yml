@@ -1,0 +1,220 @@
+# This workflow checks the submission rules of a pull request (pr-checks) and runs the instructor's
+# verification tests (simulation and synthesis) on the self-hosted runner, using the secret PDS_PAT
+# of the "verification" environment.
+#
+# Security: pull_request_target always runs the workflow and scripts of the default branch (main),
+# never a version changed by the pull request; the student's files (assignments/<issue>) are checked
+# out as data only. Pull requests from forks are not tested. The "verification" environment must be
+# limited to the main branch (see the instructor guide). This file therefore lives on main, although
+# it checks pull requests to the assignments branch.
+name: verification-tests
+
+on:
+  pull_request_target:
+    branches: [ "assignments" ]
+    types: [edited, synchronize, opened, reopened]
+
+  # Allows you to run this workflow manually from the Actions tab (branch main); it tests the
+  # assignments branch (issue 0 runs the NAND2 example of the verification environment)
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Issue number to check (0 = NAND2 example of the verification environment)"
+        required: true
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+# Settings used by this workflow:
+#   PDS_PAT            (secret of the "verification" environment) read access to the verification repository
+#   PDS_LOOKUP_TABLE   (repository variable, optional) lookup table, default pds_<year>_issues.lookup
+#   PDS_VERIF_REPO     (repository variable, optional) verification repository, default knezicm/pds-2022-verification
+
+jobs:
+  # Determines the issue and its type with the script of the main branch
+  verif-setup:
+    # Pull requests from forks are never tested
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-24.04
+    outputs:
+      issue: ${{ steps.issue.outputs.issue }}
+      kind: ${{ steps.issue.outputs.kind }}
+      lookup_table: ${{ steps.issue.outputs.lookup_table }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Determine issue number and type
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          INPUT_ISSUE: ${{ inputs.issue }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          LOOKUP_TABLE: ${{ vars.PDS_LOOKUP_TABLE }}
+        run: bash .github/scripts/classify.sh
+
+  # Checks the submission rules: title, branch name, assignee, changed files, signed-off commits,
+  # commit message format and pull request description (see .github/scripts/pr_rules.py).
+  # Runs the script of the main branch and only reads data through the API.
+  pr-checks:
+    needs: verif-setup
+    if: ${{ github.event_name == 'pull_request_target' }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Check submission rules
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ISSUE: ${{ needs.verif-setup.outputs.issue }}
+          PR: ${{ github.event.pull_request.number }}
+        run: python3 .github/scripts/pr_rules.py
+
+  # Hosted alternative: installs ModelSim and runs the simulation script
+  pds-verification:
+    needs: verif-setup
+    # Hosted alternative to the verif job (simulation only); replace false with true to enable it
+    if: ${{ false && (needs.verif-setup.outputs.kind == 'assignment' || needs.verif-setup.outputs.kind == 'example') }}
+    environment: verification
+    runs-on: ubuntu-24.04
+    env:
+      ISSUE: ${{ needs.verif-setup.outputs.issue }}
+      LOOKUP_TABLE: ${{ needs.verif-setup.outputs.lookup_table }}
+    
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # The student's files are checked out as data only: the folder of the issue, without credentials
+      - name: Checkout submission (assignments/<issue> only)
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && format('refs/pull/{0}/merge', github.event.pull_request.number) || 'assignments' }}
+          sparse-checkout: assignments/${{ needs.verif-setup.outputs.issue }}
+          persist-credentials: false
+          
+        # ModelSim requires these 32-bit libraries to be installed: https://www.intel.com/content/www/us/en/programmable/support/support-resources/knowledge-base/solutions/rd05302012_638.html
+        # Some of these are technically only required for the GUI, but it won't load on a headless server without them.
+      - name: Install ModelSim dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install lib32z1 lib32stdc++6 libexpat1:i386 libc6:i386 libsm6:i386 libncurses5:i386 libx11-6:i386 zlib1g:i386 libxext6:i386 libxft2:i386
+        # Save time on subsequent runs by caching the install of ModelSim.
+        # Download is ~1.5GB and combined with the installation process it takes over 3 minutes.
+      - name: Cache ModelSim
+        uses: actions/cache@v6
+        with:
+          path: $HOME/intelFPGA
+          key: ${{ runner.os }}-modelsim
+      - name: Install ModelSim if not cached
+        run: |
+          stat $HOME/intelFPGA/20.1/modelsim_ase || ( curl 'https://download.altera.com/akdlm/software/acdsinst/20.1std.1/720/ib_installers/ModelSimSetup-20.1.1.720-linux.run' -o ModelSimSetup.run && chmod +x ModelSimSetup.run && ./ModelSimSetup.run --mode unattended --accept_eula 1 )
+          stat $HOME/intelFPGA/20.1/modelsim_ase || ( sed -i 's/linux_rh60/linux/g' $HOME/intelFPGA/20.1/modelsim_ase/vco )
+      - name: Add ModelSim to PATH
+        run: echo "$HOME/intelFPGA/20.1/modelsim_ase/bin" >> $GITHUB_PATH
+      
+      - name: Checkout verification environment
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.PDS_VERIF_REPO || 'knezicm/pds-2022-verification' }}
+          token: ${{ secrets.PDS_PAT }}
+          path: pds-verif
+          
+      - name: Run script (simulation and synthesis)
+        run: |
+          cd pds-verif/verif
+          python ./run_test.py --issue="$ISSUE" --path=$(pwd)/../.. --lookup_table="./lookup/$LOOKUP_TABLE"
+      
+      - name: Make new dir and copy results
+        if: always()
+        run: |
+          mkdir results
+          mkdir results/sim
+          mkdir results/synth
+          cp -r pds-verif/verif/sim/"$ISSUE"/test_results/* results/sim
+          cp -r pds-verif/verif/synth/"$ISSUE" results/synth
+
+      - name: Upload simulation and synthesis artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verif-artifacts
+          path: results
+          retention-days: 10
+    
+  # This job prepares environment and runs simulation script
+  verif:
+    needs: verif-setup
+    # Runs for graded assignments and the NAND2 example (not for test assignments); replace the condition with false to disable it
+    if: ${{ needs.verif-setup.outputs.kind == 'assignment' || needs.verif-setup.outputs.kind == 'example' }}
+    environment: verification
+    # The job runs on a self-hosted runner
+    runs-on: self-hosted
+    env:
+      ISSUE: ${{ needs.verif-setup.outputs.issue }}
+      LOOKUP_TABLE: ${{ needs.verif-setup.outputs.lookup_table }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # The student's files are checked out as data only: the folder of the issue, without credentials
+      - name: Checkout submission (assignments/<issue> only)
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'pull_request_target' && format('refs/pull/{0}/merge', github.event.pull_request.number) || 'assignments' }}
+          sparse-checkout: assignments/${{ needs.verif-setup.outputs.issue }}
+          persist-credentials: false
+          
+      - name: Checkout verification environment
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ vars.PDS_VERIF_REPO || 'knezicm/pds-2022-verification' }}
+          token: ${{ secrets.PDS_PAT }}
+          path: pds-verif
+      
+      - name: Set Python and Quartus aliases
+        run: |
+          shopt -s expand_aliases
+          alias python='python3'
+          alias quartus_cmd='quartus_cmd --64bit'
+          alias quartus_map='quartus_map --64bit'
+          alias quartus_cdb='quartus_cdb --64bit'
+          alias quartus_fit='quartus_fit --64bit'
+          alias quartus_asm='quartus_asm --64bit'
+          alias quartus_eda='quartus_eda --64bit'
+          alias quartus_sta='quartus_sta --64bit'
+      
+      - name: Add Modelsim and Quartus to PATH
+        run: |
+          echo "$HOME/intelFPGA_lite/17.0/modelsim_ase/bin" >> $GITHUB_PATH
+          echo "$HOME/intelFPGA_lite/17.0/quartus/bin" >> $GITHUB_PATH
+    
+      - name: Run script (simulation and synthesis)
+        run: |
+          cd pds-verif/verif
+          python ./run_test.py --synth --issue="$ISSUE" --path=$(pwd)/../.. --lookup_table="./lookup/$LOOKUP_TABLE"
+      
+      - name: Make new dir and copy results
+        if: always()
+        run: |
+          mkdir results
+          mkdir results/sim
+          mkdir results/synth
+          cp -r pds-verif/verif/sim/"$ISSUE"/test_results/* results/sim
+          cp -r pds-verif/verif/synth/"$ISSUE" results/synth
+
+      - name: Upload simulation and synthesis artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verif-artifacts
+          path: results
+          retention-days: 10

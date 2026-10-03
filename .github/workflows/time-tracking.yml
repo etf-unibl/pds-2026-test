@@ -1,0 +1,88 @@
+# Time tracking: sums the "/spent" comments of an issue into the project fields
+# "Time logged (h)" and "Time total (h)", and once a week builds the time report
+# (pinned "time-report" issue, job summary and CSV files).
+name: Time tracking
+
+on:
+  # /spent comments on issues
+  issue_comment:
+    types: [created, edited, deleted]
+
+  # Weekly report (Monday 05:00 UTC); manually entered times are picked up here,
+  # because changes of project fields do not trigger workflows
+  schedule:
+    - cron: "0 5 * * 1"
+
+  # Allows you to build the report manually from the Actions tab
+  workflow_dispatch:
+
+# All API calls use the PDS_PROJECT_TOKEN secret of the "time-tracking" environment (fine-grained
+# personal access token with organization permission "Projects: Read and write" and repository
+# permission "Issues: Read and write"). The environment must be limited to the main branch, which
+# students cannot change, so the token is never available to their branches (see the instructor guide).
+# Optional repository variable PDS_PROJECT_NUMBER selects the project when several are linked to the repository.
+permissions:
+  contents: read
+
+jobs:
+  # Updates the time fields of one issue after a comment with /spent is added, edited or deleted
+  issue:
+    if: >-
+      github.event_name == 'issue_comment' && !github.event.issue.pull_request &&
+      (contains(github.event.comment.body, '/spent') || contains(github.event.changes.body.from, '/spent'))
+    runs-on: ubuntu-24.04
+    # One update per issue at a time; a superseded update is covered by the next one,
+    # because every update recalculates all comments of the issue
+    environment: time-tracking
+    concurrency:
+      group: time-tracking-issue-${{ github.event.issue.number }}
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Update time fields of the issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.PDS_PROJECT_TOKEN }}
+          PROJECT_NUMBER: ${{ vars.PDS_PROJECT_NUMBER }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "::error::The PDS_PROJECT_TOKEN secret of the time-tracking environment is not set."
+            exit 1
+          fi
+          python3 .github/scripts/time_tracking.py issue "$ISSUE_NUMBER"
+
+  # Updates all issues of the project and builds the report
+  report:
+    if: github.event_name != 'issue_comment'
+    runs-on: ubuntu-24.04
+    environment: time-tracking
+    concurrency:
+      group: time-tracking-report
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build time report
+        env:
+          GITHUB_TOKEN: ${{ secrets.PDS_PROJECT_TOKEN }}
+          PROJECT_NUMBER: ${{ vars.PDS_PROJECT_NUMBER }}
+          REPORT_LANG: sr
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$GITHUB_TOKEN" ]; then
+            echo "::error::The PDS_PROJECT_TOKEN secret of the time-tracking environment is not set."
+            exit 1
+          fi
+          python3 .github/scripts/time_tracking.py report --out time-report
+
+      - name: Upload CSV files
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: time-report
+          path: time-report
+          retention-days: 90
+          if-no-files-found: ignore

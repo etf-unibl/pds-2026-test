@@ -1,0 +1,99 @@
+# One-time initialization of a course repository created from the course template.
+# It fills in the placeholders (organization, repository, year, course name) on the
+# main and assignments branches and removes the template-only content. It does
+# nothing in the template repository itself or once the repository is initialized.
+name: Initialize course repository
+
+on:
+  # Creating a repository from the template pushes its initial commit to main
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run the initialization manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  init:
+    if: ${{ !github.event.repository.is_template }}
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
+
+      - name: Check whether initialization is needed
+        id: check
+        run: |
+          if [ -f main/.github/template/init_course.py ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Repository is already initialized, nothing to do."
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout assignments branch
+        if: steps.check.outputs.needed == 'true'
+        uses: actions/checkout@v7
+        with:
+          ref: assignments
+          path: assignments
+
+      # Year: first 20xx number in the repository name (e.g. pds-2026), otherwise the current year.
+      # Course name: repository name in upper case (e.g. PDS-2026).
+      # Instructor (CODEOWNERS on assignments): the account that created the repository.
+      - name: Determine values
+        if: steps.check.outputs.needed == 'true'
+        id: values
+        env:
+          ORG: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
+          INSTRUCTOR: ${{ github.actor }}
+        run: |
+          YEAR=$(echo "$REPO" | grep -o -E '20[0-9]{2}' | head -n 1 || true)
+          [ -n "$YEAR" ] || YEAR=$(date +%Y)
+          COURSE=$(echo "$REPO" | tr '[:lower:]' '[:upper:]')
+          echo "organization=$ORG repository=$REPO year=$YEAR course=$COURSE"
+          {
+            echo "args=--org $ORG --repo $REPO --year $YEAR --course $COURSE --instructor $INSTRUCTOR"
+            echo "course=$COURSE"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Initialize assignments branch
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          python3 main/.github/template/init_course.py --branch assignments --path assignments ${{ steps.values.outputs.args }}
+          cd assignments
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -q -m "Initialize ${{ steps.values.outputs.course }} course repository"
+          git push origin assignments
+
+      - name: Initialize main branch
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          python3 main/.github/template/init_course.py --branch main --path main ${{ steps.values.outputs.args }}
+          cd main
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Initialize ${{ steps.values.outputs.course }} course repository"
+          git push origin main
+
+      # GITHUB_TOKEN is not allowed to change workflow files, so this may fail.
+      # The workflow is a no-op from now on anyway, because the script was removed.
+      - name: Remove this workflow
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          cd main
+          git rm -q .github/workflows/init-course.yml
+          git commit -q -m "Remove course initialization workflow"
+          if ! git push origin main; then
+            echo "::notice::The course is initialized. GitHub does not allow this workflow to delete itself; delete .github/workflows/init-course.yml on the main branch manually."
+          fi
