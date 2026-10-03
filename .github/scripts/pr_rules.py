@@ -18,8 +18,9 @@ The rules (see docs/assignment-submission.md):
 
 Before checking, the script fills the section marked with <!-- section:changes --> with the
 "- " items of all commit messages (and adds the section if it is missing), so students do not
-have to repeat them, and removes copies of these items that GitHub puts above the template for
-a single-commit pull request; this is the only change it makes. All broken rules are reported, each as
+have to repeat them, removes copies of these items that GitHub puts above the template for
+a single-commit pull request, and replaces <N> in the template with the issue number; these are
+the only changes it makes. All broken rules are reported, each as
 a separate error. The script never runs code of the pull request.
 
 Environment: GITHUB_TOKEN, GITHUB_REPOSITORY, ISSUE, PR (pull request number)
@@ -170,6 +171,8 @@ first = new_body.find("<!-- section:")
 if first > 0 and items:
     head = [l for l in new_body[:first].split("\n") if l.strip() not in items]
     new_body = "\n".join(head).lstrip("\n") + new_body[first:]
+# The template refers to the issue number as <N> (e.g. "vhdl-style <N>"); fill in the actual number
+new_body = new_body.replace("<N>", ISSUE)
 if new_body != body:
     patch(f"/repos/{REPO}/pulls/{PR}", {"body": new_body})
     print("OK   changes section filled from the commit messages")
