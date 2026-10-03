@@ -81,7 +81,7 @@ Kada je rješenje spremno za pregled i sve izmjene su poslate (`git push`):
    - u sekciju *Opis* upišite kratak opis rješenja (šta dizajn radi i kako je realizovan),
    - u sekciji *Provjera* označite stavke ([x]), i to tek kada su zaista provjerene. Stavke se mogu označiti i klikom na kvadratić, nakon kreiranja *pull request*-a.
 
-   Sekciju *Izmjene* ne treba popunjavati: automatska provjera je popunjava stavkama (`- ...`) iz poruka svih komita i osvježava je nakon svakog `git push`. Ako grana ima jedan komit, *GitHub* opis tog komita upisuje iznad šablona; taj tekst možete obrisati ili iskoristiti za sekciju *Opis*.
+   Sekciju *Izmjene* ne treba popunjavati: automatska provjera je popunjava stavkama (`- ...`) iz poruka svih komita i osvježava je nakon svakog `git push`. Ako grana ima jedan komit, *GitHub* opis tog komita upisuje iznad šablona. Stavke liste iz tog teksta automatska provjera premješta u sekciju *Izmjene* (ne ponavljaju se), a ostatak teksta možete obrisati ili iskoristiti za sekciju *Opis*.
 
    U šablonu su komentari (`<!-- ... -->`), koji se na stranici *pull request*-a ne prikazuju. Komentari sa oznakama `section:...` i `check:...` označavaju sekcije za automatsku provjeru i ne brišu se; ostali komentari su uputstva i mogu se obrisati.
 5. Kliknite na **Create pull request**.

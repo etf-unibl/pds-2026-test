@@ -18,7 +18,8 @@ The rules (see docs/assignment-submission.md):
 
 Before checking, the script fills the section marked with <!-- section:changes --> with the
 "- " items of all commit messages (and adds the section if it is missing), so students do not
-have to repeat them; this is the only change it makes. All broken rules are reported, each as
+have to repeat them, and removes copies of these items that GitHub puts above the template for
+a single-commit pull request; this is the only change it makes. All broken rules are reported, each as
 a separate error. The script never runs code of the pull request.
 
 Environment: GITHUB_TOKEN, GITHUB_REPOSITORY, ISSUE, PR (pull request number)
@@ -163,6 +164,12 @@ else:
     else:
         title = "## Izmjene" if re.search(r"^##[ \t]*Opis[ \t]*$", rest, re.M) else "## Changes"
         new_body = rest.rstrip("\n") + "\n\n" + title + "\n" + block + "\n"
+# For a single commit, GitHub puts the commit description above the template; the change items
+# there are copies of the generated list, so they are removed (moved into the changes section)
+first = new_body.find("<!-- section:")
+if first > 0 and items:
+    head = [l for l in new_body[:first].split("\n") if l.strip() not in items]
+    new_body = "\n".join(head).lstrip("\n") + new_body[first:]
 if new_body != body:
     patch(f"/repos/{REPO}/pulls/{PR}", {"body": new_body})
     print("OK   changes section filled from the commit messages")
