@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Rejects a commit that changes files outside assignments/<N>/, where <N> is the number at the start
+# of the branch name (the automated checks of the pull request reject such changes as well).
+
+branch=$(git symbolic-ref --short -q HEAD || true)
+issue=${branch%%-*}
+[[ $issue =~ ^[0-9]+$ ]] || exit 0
+[ -f "$(git rev-parse --git-dir)/MERGE_HEAD" ] && exit 0
+
+outside=$(git diff --cached --name-only --no-renames | grep -v "^assignments/$issue/" || true)
+if [ -n "$outside" ]; then
+  echo "Commit rejected: only files in assignments/$issue/ may be changed on branch '$branch'." >&2
+  echo "Files outside the folder:" >&2
+  printf '  %s\n' $outside >&2
+  echo "Remove them from the commit with: git restore --staged <file>" >&2
+  exit 1
+fi
+exit 0

@@ -1,0 +1,40 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches:
+    - assignments
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - uses: actions/checkout@v7
+
+    # Nothing is published until the first VHDL file is merged, so gh-pages stays empty in a new repository
+    - name: Check for VHDL files
+      id: check
+      run: |
+        if find assignments -type f \( -name '*.vhd' -o -name '*.vhdl' \) | grep -q .; then
+          echo "found=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "No VHDL files in assignments/ yet, nothing to publish."
+          echo "found=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Doxygen Action
+      if: steps.check.outputs.found == 'true'
+      uses: mattnotmitt/doxygen-action@v1.9.5
+      with:
+        doxyfile-path: "./Doxyfile"
+        working-directory: "assignments/"
+
+    - name: Deploy
+      if: steps.check.outputs.found == 'true'
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: assignments/html

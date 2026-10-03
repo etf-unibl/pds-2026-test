@@ -1,0 +1,23 @@
+# Normalise line endings: text files are stored and checked out with LF,
+# regardless of the core.autocrlf setting ([EndOfLine] rule).
+* text=auto eol=lf
+
+*.vhd  text eol=lf
+*.vhdl text eol=lf
+*.py   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.md   text eol=lf
+*.sh   text eol=lf
+
+# Windows scripts keep CR LF
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# Binary files
+*.pdf  binary
+*.png  binary
+*.PNG  binary
+*.jpg  binary
+*.dll  binary
+*.exe  binary

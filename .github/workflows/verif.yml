@@ -1,0 +1,188 @@
+# This is a workflow used for automated testing of student assignments
+name: verification
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on pull request events on the "assignments" branch
+  pull_request:
+    branches: [ "assignments" ]
+    types: [edited, synchronize, opened, reopened]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Issue number to check"
+        required: true
+
+# This workflow runs the checks that need no secrets and run student code (style, test.vhd,
+# testbenches); it runs the version of the pull request. The submission rules (pr-checks) and the
+# instructor's tests run in verif-tests.yml on the main branch, which a pull request cannot change.
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job determines the issue number (first number in the pull request title) and the issue
+  # type from its labels: "good first issue" = test assignment, "assignment-<n>" = graded
+  # assignment of group <n>. Other labels are ignored.
+  classify:
+    runs-on: ubuntu-24.04
+    outputs:
+      issue: ${{ steps.issue.outputs.issue }}
+      kind: ${{ steps.issue.outputs.kind }}
+      group: ${{ steps.issue.outputs.group }}
+      testbenches: ${{ steps.files.outputs.testbenches }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Determine issue number and type
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          INPUT_ISSUE: ${{ inputs.issue }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          LOOKUP_TABLE: ${{ vars.PDS_LOOKUP_TABLE }}
+        run: bash .github/scripts/classify.sh
+
+      # Testbenches are the files assignments/<issue>/*_tb.vhd of the submitted version
+      - name: Find testbenches
+        id: files
+        if: steps.issue.outputs.kind != 'example'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ steps.issue.outputs.issue }}
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          TB=$(gh api "repos/$GITHUB_REPOSITORY/contents/assignments/$ISSUE?ref=$REF" --jq '.[] | select(.type == "file") | .name | select(endswith("_tb.vhd"))' 2>/dev/null | paste -sd ' ' - || true)
+          echo "Testbenches: ${TB:-none}"
+          echo "testbenches=$TB" >> "$GITHUB_OUTPUT"
+
+  # This job checks the code style with vhdl-style-tools
+  # (https://github.com/etf-unibl/vhdl-style-tools, version pinned in requirements.txt)
+  linter:
+    needs: classify
+    # Replace the condition below with false to disable the linter job
+    if: ${{ needs.classify.outputs.kind != 'example' }}
+    runs-on: ubuntu-24.04
+    env:
+      ISSUE: ${{ needs.classify.outputs.issue }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install the VHDL style tools
+        run: pip install -r requirements.txt
+
+      # GHDL analyses the files as VHDL-93 ([VHDLVersion] rule)
+      - name: Setup GHDL
+        uses: ghdl/setup-ghdl@v1
+        with:
+          version: latest
+          backend: mcode
+
+      - name: Check code style
+        run: vhdl-style "$ISSUE"
+
+  # This job checks test assignments (label "good first issue"): the file
+  # assignments/<issue>/test.vhd must exist and compile as VHDL-93
+  basic-test:
+    needs: classify
+    if: ${{ needs.classify.outputs.kind == 'test' }}
+    runs-on: ubuntu-24.04
+    env:
+      ISSUE: ${{ needs.classify.outputs.issue }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup GHDL
+        uses: ghdl/setup-ghdl@v1
+        with:
+          version: latest
+          backend: mcode
+
+      - name: Check test.vhd
+        run: |
+          FILE="assignments/$ISSUE/test.vhd"
+          if [ ! -d "assignments/$ISSUE" ]; then
+            echo "::error::Folder assignments/$ISSUE not found."
+            exit 1
+          fi
+          if [ ! -f "$FILE" ]; then
+            echo "::error::File $FILE not found."
+            exit 1
+          fi
+          echo "Analysing $FILE ..."
+          ghdl -a --std=93 --workdir="$RUNNER_TEMP" "$FILE"
+          echo "$FILE compiles without errors."
+
+  # This job runs the student's testbenches (assignments/<issue>/*_tb.vhd) with GHDL. A testbench
+  # fails if it does not compile or reports an assertion of severity error or failure.
+  # The testbench entity must have the same name as its file (e.g. nand2_tb in nand2_tb.vhd).
+  testbench:
+    needs: classify
+    if: ${{ needs.classify.outputs.kind != 'example' && needs.classify.outputs.testbenches != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      ISSUE: ${{ needs.classify.outputs.issue }}
+      TESTBENCHES: ${{ needs.classify.outputs.testbenches }}
+      # Upper limit of simulated time, for testbenches that do not stop by themselves
+      STOP_TIME: 10ms
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup GHDL
+        uses: ghdl/setup-ghdl@v1
+        with:
+          version: latest
+          backend: mcode
+
+      - name: Run testbenches
+        run: |
+          cd "assignments/$ISSUE"
+          mkdir -p "$RUNNER_TEMP/ghdl" waves
+          ghdl -i --std=93 --workdir="$RUNNER_TEMP/ghdl" *.vhd
+          FAILED=""
+          for TB_FILE in $TESTBENCHES; do
+            TB=${TB_FILE%.vhd}
+            echo "::group::$TB"
+            if ! ghdl -m --std=93 --workdir="$RUNNER_TEMP/ghdl" "$TB"; then
+              echo "::error file=assignments/$ISSUE/$TB_FILE::Testbench $TB does not compile (the entity must be named $TB, like its file)."
+              FAILED="$FAILED $TB"
+            elif ! ghdl -r --std=93 --workdir="$RUNNER_TEMP/ghdl" "$TB" --stop-time="$STOP_TIME" --assert-level=error --wave="waves/$TB.ghw"; then
+              echo "::error file=assignments/$ISSUE/$TB_FILE::Testbench $TB failed (assertion of severity error or failure)."
+              FAILED="$FAILED $TB"
+            else
+              echo "Testbench $TB passed."
+            fi
+            echo "::endgroup::"
+          done
+          if [ -n "$FAILED" ]; then
+            echo "Failed testbenches:$FAILED"
+            exit 1
+          fi
+
+      - name: Upload waveforms
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: testbench-waveforms
+          path: assignments/${{ needs.classify.outputs.issue }}/waves
+          retention-days: 10
+          if-no-files-found: ignore

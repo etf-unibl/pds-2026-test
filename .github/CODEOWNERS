@@ -1,0 +1,4 @@
+# Every pull request to the assignments branch automatically requests a review from the instructor.
+# <instructor> is replaced with the GitHub username of the instructor when the course repository is
+# created from the template; add further instructors or a team (@organization/team-name) separated by spaces.
+* @<instructor>

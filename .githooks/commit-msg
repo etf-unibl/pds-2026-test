@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Checks the format of a commit message (enable the hooks once: git config core.hooksPath .githooks):
+#
+#   Issue #<N> : <issue title>
+#
+#   - description of a change
+#   - ...
+#
+#   Signed-off-by: Name Surname <e-mail>
+#
+# <N> must match the number at the start of the branch name. The automated checks of the pull request
+# verify the same rules (and the exact issue title), so a commit made with --no-verify is caught there.
+
+msg_file="$1"
+git_dir=$(git rev-parse --git-dir)
+
+# Merge commits and commits that will be squashed are not checked
+[ -f "$git_dir/MERGE_HEAD" ] && exit 0
+msg=$(grep -v '^#' "$msg_file")
+subject=$(printf '%s\n' "$msg" | sed -n 1p)
+case "$subject" in
+  "Merge "*|"fixup! "*|"squash! "*|"amend! "*) exit 0 ;;
+esac
+
+branch=$(git symbolic-ref --short -q HEAD || true)
+branch_issue=${branch%%-*}
+errors=()
+
+if [[ $subject =~ ^Issue\ \#([0-9]+)\ :\ .+$ ]]; then
+  issue=${BASH_REMATCH[1]}
+  if [[ $branch_issue =~ ^[0-9]+$ ]] && [ "$issue" != "$branch_issue" ]; then
+    errors+=("Issue #$issue in the first line does not match the branch '$branch' (issue #$branch_issue).")
+  fi
+else
+  errors+=("The first line must be 'Issue #<N> : <issue title>' (with spaces around ':').")
+fi
+
+if [ -n "$(printf '%s\n' "$msg" | sed -n 2p)" ]; then
+  errors+=("The second line must be empty.")
+fi
+
+if ! printf '%s\n' "$msg" | sed -n '3,$p' | grep -v -i '^signed-off-by:' | grep -q -E '^[[:space:]]*-[[:space:]]+[^[:space:]]'; then
+  errors+=("Describe the changes as a list: lines starting with '- ' after the empty line.")
+fi
+
+name=$(git config user.name)
+email=$(git config user.email)
+expected=$(printf 'Signed-off-by: %s <%s>' "$name" "$email" | tr '[:upper:]' '[:lower:]')
+if ! printf '%s\n' "$msg" | tr '[:upper:]' '[:lower:]' | grep -q -F -- "$expected"; then
+  errors+=("Missing sign-off 'Signed-off-by: $name <$email>' (commit with: git commit -s).")
+fi
+
+if [ ${#errors[@]} -gt 0 ]; then
+  echo "Commit rejected, the message does not follow the course format:" >&2
+  for e in "${errors[@]}"; do echo "  - $e" >&2; done
+  echo "The message is kept in $msg_file; fix it and commit again (see docs/assignment-submission.md)." >&2
+  exit 1
+fi
+exit 0

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Pre-fills the commit message for a plain "git commit" (no -m, not a merge or amend):
+#
+#   Issue #<N> : <issue title>
+#
+#   -
+#
+# <N> is the number at the start of the branch name; the issue title is read from GitHub
+# (the course repository is public, so no login is needed) and cached in .git/issue-titles/.
+
+msg_file="$1"
+source="${2:-}"
+[ -z "$source" ] || exit 0
+
+branch=$(git symbolic-ref --short -q HEAD || true)
+issue=${branch%%-*}
+[[ $issue =~ ^[0-9]+$ ]] || exit 0
+
+git_dir=$(git rev-parse --git-dir)
+cache="$git_dir/issue-titles/$issue"
+title=""
+if [ -s "$cache" ]; then
+  title=$(cat "$cache")
+else
+  url=$(git remote get-url origin 2>/dev/null || true)
+  slug=$(printf '%s' "$url" | sed -E 's#^(git@github\.com:|https://github\.com/)##; s#\.git$##')
+  # first Python interpreter that really runs (on Windows "python3" may be a Microsoft Store placeholder)
+  py=""
+  for candidate in python3 python py; do
+    if "$candidate" -c "" >/dev/null 2>&1; then py=$candidate; break; fi
+  done
+  if [ -n "$slug" ] && [ -n "$py" ]; then
+    title=$(curl -fsS --max-time 5 "https://api.github.com/repos/$slug/issues/$issue" 2>/dev/null |
+            "$py" -c 'import json,sys; print(json.load(sys.stdin).get("title",""))' 2>/dev/null || true)
+    if [ -n "$title" ]; then
+      mkdir -p "$git_dir/issue-titles"
+      printf '%s' "$title" > "$cache"
+    fi
+  fi
+fi
+[ -n "$title" ] || title="<issue title>"
+
+existing=$(cat "$msg_file")
+printf 'Issue #%s : %s\n\n- \n%s\n' "$issue" "$title" "$existing" > "$msg_file"
+exit 0
