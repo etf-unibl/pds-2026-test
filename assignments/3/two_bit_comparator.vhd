@@ -35,11 +35,11 @@ use ieee.std_logic_1164.all;
 
 entity two_bit_comparator is
   port (
-    i_a    : in    std_logic_vector(1 downto 0);
-    i_b    : in    std_logic_vector(1 downto 0);
-    o_agtb : out   std_logic;
-    o_aeqb : out   std_logic;
-    o_altb : out   std_logic);
+    a_i    : in    std_logic_vector(1 downto 0);
+    b_i    : in    std_logic_vector(1 downto 0);
+    agtb_o : out   std_logic;
+    aeqb_o : out   std_logic;
+    altb_o : out   std_logic);
 end entity two_bit_comparator;
 
 architecture arch of two_bit_comparator is
@@ -49,10 +49,10 @@ architecture arch of two_bit_comparator is
 
 begin
 
-  eq     <= (i_a(1) xnor i_b(1)) and (i_a(0) xnor i_b(0));
-  gt     <= (i_a(1) and not i_b(1)) or ((i_a(1) xnor i_b(1)) and i_a(0) and not i_b(0));
-  o_aeqb <= eq;
-  o_agtb <= gt;
-  o_altb <= not (eq or gt);
+  eq     <= (a_i(1) xnor b_i(1)) and (a_i(0) xnor b_i(0));
+  gt     <= (a_i(1) and not b_i(1)) or ((a_i(1) xnor b_i(1)) and a_i(0) and not b_i(0));
+  aeqb_o <= eq;
+  agtb_o <= gt;
+  altb_o <= not (eq or gt);
 
 end architecture arch;

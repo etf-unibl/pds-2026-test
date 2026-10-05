@@ -35,22 +35,22 @@ use ieee.std_logic_1164.all;
 
 entity four_bit_comparator is
   port (
-    i_a    : in    std_logic_vector(3 downto 0);
-    i_b    : in    std_logic_vector(3 downto 0);
-    o_agtb : out   std_logic;
-    o_aeqb : out   std_logic;
-    o_altb : out   std_logic);
+    a_i    : in    std_logic_vector(3 downto 0);
+    b_i    : in    std_logic_vector(3 downto 0);
+    agtb_o : out   std_logic;
+    aeqb_o : out   std_logic;
+    altb_o : out   std_logic);
 end entity four_bit_comparator;
 
 architecture arch of four_bit_comparator is
 
   component two_bit_comparator is
     port (
-      i_a    : in    std_logic_vector(1 downto 0);
-      i_b    : in    std_logic_vector(1 downto 0);
-      o_agtb : out   std_logic;
-      o_aeqb : out   std_logic;
-      o_altb : out   std_logic);
+      a_i    : in    std_logic_vector(1 downto 0);
+      b_i    : in    std_logic_vector(1 downto 0);
+      agtb_o : out   std_logic;
+      aeqb_o : out   std_logic;
+      altb_o : out   std_logic);
   end component two_bit_comparator;
 
   signal hi_gt : std_logic;
@@ -64,22 +64,22 @@ begin
 
   hi : component two_bit_comparator
     port map (
-      i_a    => i_a(3 downto 2),
-      i_b    => i_b(3 downto 2),
-      o_agtb => hi_gt,
-      o_aeqb => hi_eq,
-      o_altb => hi_lt);
+      a_i    => a_i(3 downto 2),
+      b_i    => b_i(3 downto 2),
+      agtb_o => hi_gt,
+      aeqb_o => hi_eq,
+      altb_o => hi_lt);
 
   lo : component two_bit_comparator
     port map (
-      i_a    => i_a(1 downto 0),
-      i_b    => i_b(1 downto 0),
-      o_agtb => lo_gt,
-      o_aeqb => lo_eq,
-      o_altb => lo_lt);
+      a_i    => a_i(1 downto 0),
+      b_i    => b_i(1 downto 0),
+      agtb_o => lo_gt,
+      aeqb_o => lo_eq,
+      altb_o => lo_lt);
 
-  o_agtb <= hi_gt or (hi_eq and lo_gt);
-  o_aeqb <= hi_eq and lo_eq;
-  o_altb <= hi_lt or (hi_eq and lo_lt);
+  agtb_o <= hi_gt or (hi_eq and lo_gt);
+  aeqb_o <= hi_eq and lo_eq;
+  altb_o <= hi_lt or (hi_eq and lo_lt);
 
 end architecture arch;
