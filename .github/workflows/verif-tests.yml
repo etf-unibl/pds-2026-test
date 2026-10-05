@@ -140,14 +140,22 @@ jobs:
           cd pds-verif/verif
           python ./run_test.py --issue="$ISSUE" --path=$(pwd)/../.. --lookup_table="./lookup/$LOOKUP_TABLE"
       
-      - name: Make new dir and copy results
+      - name: Copy results
         if: always()
         run: |
-          mkdir results
-          mkdir results/sim
-          mkdir results/synth
-          cp -r pds-verif/verif/sim/"$ISSUE"/test_results/* results/sim
-          cp -r pds-verif/verif/synth/"$ISSUE" results/synth
+          # Copies what run_test.py produced. When it stopped early (e.g. the design did not load), parts are
+          # missing: that is reported as a notice, so the failure stays in the previous step only.
+          mkdir -p results/sim results/synth
+          if [ -d "pds-verif/verif/sim/$ISSUE/test_results" ]; then
+            cp -r "pds-verif/verif/sim/$ISSUE/test_results/." results/sim/
+          else
+            echo "::notice::No simulation results: the test did not run to the end (see the previous step)."
+          fi
+          if [ -d "pds-verif/verif/synth/$ISSUE" ]; then
+            cp -r "pds-verif/verif/synth/$ISSUE" results/synth/
+          else
+            echo "::notice::No synthesis results: synthesis did not run (see the previous step)."
+          fi
 
       - name: Upload simulation and synthesis artifacts
         if: always()
@@ -208,14 +216,22 @@ jobs:
           cd pds-verif/verif
           python ./run_test.py --synth --issue="$ISSUE" --path=$(pwd)/../.. --lookup_table="./lookup/$LOOKUP_TABLE"
       
-      - name: Make new dir and copy results
+      - name: Copy results
         if: always()
         run: |
-          mkdir results
-          mkdir results/sim
-          mkdir results/synth
-          cp -r pds-verif/verif/sim/"$ISSUE"/test_results/* results/sim
-          cp -r pds-verif/verif/synth/"$ISSUE" results/synth
+          # Copies what run_test.py produced. When it stopped early (e.g. the design did not load), parts are
+          # missing: that is reported as a notice, so the failure stays in the previous step only.
+          mkdir -p results/sim results/synth
+          if [ -d "pds-verif/verif/sim/$ISSUE/test_results" ]; then
+            cp -r "pds-verif/verif/sim/$ISSUE/test_results/." results/sim/
+          else
+            echo "::notice::No simulation results: the test did not run to the end (see the previous step)."
+          fi
+          if [ -d "pds-verif/verif/synth/$ISSUE" ]; then
+            cp -r "pds-verif/verif/synth/$ISSUE" results/synth/
+          else
+            echo "::notice::No synthesis results: synthesis did not run (see the previous step)."
+          fi
 
       - name: Upload simulation and synthesis artifacts
         if: always()
