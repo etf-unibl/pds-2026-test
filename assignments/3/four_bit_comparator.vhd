@@ -4,7 +4,8 @@
 --
 -- description:
 --
---   This file implements a simple four_bit_comparator logic.
+--   This file implements a comparator of two 4-bit unsigned numbers built
+--   structurally from two 2-bit comparators.
 --
 -----------------------------------------------------------------------------
 -- The MIT License
@@ -30,20 +31,35 @@
 -- OTHER DEALINGS IN THE SOFTWARE
 -----------------------------------------------------------------------------
 
+--! @file
+--! @brief Comparator of two 4-bit unsigned numbers
+
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! @brief Comparator of two 4-bit unsigned numbers
+--! @details Compares the unsigned numbers a_i and b_i. Exactly one of the
+--! outputs agtb_o, aeqb_o and altb_o is '1' at any time. The circuit is
+--! purely combinational.
+--! @see two_bit_comparator
+
 entity four_bit_comparator is
   port (
-    a_i    : in    std_logic_vector(3 downto 0);
-    b_i    : in    std_logic_vector(3 downto 0);
-    agtb_o : out   std_logic;
-    aeqb_o : out   std_logic;
-    altb_o : out   std_logic);
+    a_i    : in    std_logic_vector(3 downto 0); --! First number (unsigned)
+    b_i    : in    std_logic_vector(3 downto 0); --! Second number (unsigned)
+    agtb_o : out   std_logic;                    --! '1' when a_i > b_i
+    aeqb_o : out   std_logic;                    --! '1' when a_i = b_i
+    altb_o : out   std_logic);                   --! '1' when a_i < b_i
 end entity four_bit_comparator;
+
+--! @brief Structural architecture of the 4-bit comparator
+--! @details Two 2-bit comparators compare the higher (bits 3..2) and the
+--! lower (bits 1..0) bit pairs. The higher pair decides the result; the
+--! lower pair is used only when the higher pairs are equal.
 
 architecture arch of four_bit_comparator is
 
+  --! Comparator of two 2-bit unsigned numbers
   component two_bit_comparator is
     port (
       a_i    : in    std_logic_vector(1 downto 0);
@@ -53,15 +69,16 @@ architecture arch of four_bit_comparator is
       altb_o : out   std_logic);
   end component two_bit_comparator;
 
-  signal hi_gt : std_logic;
-  signal hi_eq : std_logic;
-  signal hi_lt : std_logic;
-  signal lo_gt : std_logic;
-  signal lo_eq : std_logic;
-  signal lo_lt : std_logic;
+  signal hi_gt : std_logic; --! Higher bit pair of a_i is greater
+  signal hi_eq : std_logic; --! Higher bit pairs are equal
+  signal hi_lt : std_logic; --! Higher bit pair of a_i is less
+  signal lo_gt : std_logic; --! Lower bit pair of a_i is greater
+  signal lo_eq : std_logic; --! Lower bit pairs are equal
+  signal lo_lt : std_logic; --! Lower bit pair of a_i is less
 
 begin
 
+  --! Comparator of the higher bit pair (bits 3..2)
   hi : component two_bit_comparator
     port map (
       a_i    => a_i(3 downto 2),
@@ -70,6 +87,7 @@ begin
       aeqb_o => hi_eq,
       altb_o => hi_lt);
 
+  --! Comparator of the lower bit pair (bits 1..0)
   lo : component two_bit_comparator
     port map (
       a_i    => a_i(1 downto 0),

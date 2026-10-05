@@ -4,7 +4,8 @@
 --
 -- description:
 --
---   This file implements a simple two_bit_comparator logic.
+--   This file implements a comparator of two 2-bit unsigned numbers
+--   described with concurrent statements.
 --
 -----------------------------------------------------------------------------
 -- The MIT License
@@ -30,22 +31,35 @@
 -- OTHER DEALINGS IN THE SOFTWARE
 -----------------------------------------------------------------------------
 
+--! @file
+--! @brief Comparator of two 2-bit unsigned numbers
+
 library ieee;
 use ieee.std_logic_1164.all;
 
+--! @brief Comparator of two 2-bit unsigned numbers
+--! @details Compares the unsigned numbers a_i and b_i. Exactly one of the
+--! outputs agtb_o, aeqb_o and altb_o is '1' at any time. The circuit is
+--! purely combinational.
+
 entity two_bit_comparator is
   port (
-    a_i    : in    std_logic_vector(1 downto 0);
-    b_i    : in    std_logic_vector(1 downto 0);
-    agtb_o : out   std_logic;
-    aeqb_o : out   std_logic;
-    altb_o : out   std_logic);
+    a_i    : in    std_logic_vector(1 downto 0); --! First number (unsigned)
+    b_i    : in    std_logic_vector(1 downto 0); --! Second number (unsigned)
+    agtb_o : out   std_logic;                    --! '1' when a_i > b_i
+    aeqb_o : out   std_logic;                    --! '1' when a_i = b_i
+    altb_o : out   std_logic);                   --! '1' when a_i < b_i
 end entity two_bit_comparator;
+
+--! @brief Dataflow architecture of the 2-bit comparator
+--! @details Equality requires both bit pairs to be equal (xnor). a_i is
+--! greater when its higher bit is greater, or when the higher bits are
+--! equal and its lower bit is greater. "Less than" is neither of the two.
 
 architecture arch of two_bit_comparator is
 
-  signal eq : std_logic;
-  signal gt : std_logic;
+  signal eq : std_logic; --! '1' when the numbers are equal
+  signal gt : std_logic; --! '1' when a_i is greater than b_i
 
 begin
 
