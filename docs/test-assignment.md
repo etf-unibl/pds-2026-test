@@ -13,7 +13,7 @@ Na osnovu labele automatske provjere određuju da li se radi o probnom zadatku i
 
 ### Šta je potrebno predati
 
-U folderu `assignments/<N>`, gdje je `<N>` broj probnog zadatka, potrebno je predati fajl `test.vhd` sa opisom jednostavnog kola po izboru (npr. NAND kolo sa dva ulaza). Entitet se obavezno zove `test` (a u zaglavlju fajla naziv jedinice `TEST`), jer pravila stila zahtijevaju da naziv fajla bude jednak nazivu entiteta. Fajl treba da sadrži deklaraciju entiteta i arhitekturu, da se prevodi bez grešaka (standard VHDL-93), da bude formatiran u skladu sa uputstvom [Pravila za formatiranje VHDL opisa](vhdl-code-style.md) i dokumentovan prema uputstvu [Dokumentovanje dizajna](design-documentation.md).
+U folderu `assignments/<N>`, gdje je `<N>` broj probnog zadatka, potrebno je predati fajl `test.vhd` sa opisom jednostavnog kola po izboru (npr. NAND kolo sa dva ulaza). Entitet se obavezno zove `test` (a u zaglavlju fajla naziv jedinice `TEST`), jer pravila stila zahtijevaju da naziv fajla bude jednak nazivu entiteta. Fajl treba da sadrži deklaraciju entiteta i arhitekturu, da se prevodi bez grešaka (standard VHDL-2008), da bude formatiran u skladu sa uputstvom [Pravila za formatiranje VHDL opisa](vhdl-code-style.md) i dokumentovan prema uputstvu [Dokumentovanje dizajna](design-documentation.md).
 
 ```
 assignments/
@@ -39,11 +39,11 @@ Postupak je identičan postupku za zadatke koji se ocjenjuju, pa se ovdje navode
 4. Lokalno provjerite fajl:
 
    ```
-   ghdl -a --std=93 assignments/<N>/test.vhd
+   ghdl -a --std=08 assignments/<N>/test.vhd
    vhdl-style <N>
    ```
 
-   Umjesto *GHDL* alata može se koristiti i `vcom -93` ([Simulacija i testiranje](simulation-and-testing.md)).
+   Umjesto *GHDL* alata može se koristiti i `vcom -2008` ([Simulacija i testiranje](simulation-and-testing.md)).
 5. Komitujte (obavezno sa opcijom `-s`, koja dodaje potpis) i pošaljite izmjene ([Pravila prilikom predaje rješenja zadataka](assignment-submission.md#poruka-komita)):
 
    ```

@@ -35,6 +35,8 @@ Alati se preuzimaju sa stranice *Intel FPGA Software Download Center* (potražit
 - odaberite i simulator (*ModelSim* ili *Questa - Intel FPGA Starter Edition*, zavisno od verzije *Quartus* alata),
 - za *Questa* simulator potrebna je (besplatna) licenca. Postupak njenog preuzimanja i podešavanja zavisi od verzije alata, pa ga provjerite na zvaničnoj *Intel* stranici za odabranu verziju.
 
+Na kursu se koristi standard VHDL-2008. U svakom *Quartus* projektu podesite ga u **Assignments &rarr; Settings &rarr; Compiler Settings &rarr; VHDL Input** (opcija *VHDL 2008*); simulator pokrenut iz *Quartus*-a preuzima ovo podešavanje, a pri prevođenju iz komandne linije koristi se `vcom -2008`.
+
 Za programiranje ploče preko *USB-Blaster* kabla na *Windows* platformi potrebno je instalirati drajver koji se nalazi u instalacionom folderu *Quartus* alata (`<quartus>/drivers/usb-blaster` ili `usb-blaster-ii`).
 
 Za rad iz komandne linije (preporučeno za brzu provjeru), dodajte foldere sa izvršnim fajlovima alata u varijablu okruženja `PATH`, npr. `<instalacioni folder>/quartus/bin64` i folder simulatora sa programima `vcom` i `vsim`.

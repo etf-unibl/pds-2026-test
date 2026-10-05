@@ -1,6 +1,6 @@
 ## Primjena pravila formatiranja opisa u VHDL jeziku
 
-Opis svakog dizajna u VHDL jeziku treba da bude uniformno stilizovan prema pravilima kursa. Pravila su zasnovana na smjernicama *VHDL coding style* koje su dio [*Open Hardware Repository*](https://gitlab.com/ohwr/project/vhdl-style/-/wikis/home) projekta (dostupne i kao [HTML stranica](https://gitlab.com/ohwr/project/vhdl-style/blob/master/doc/vhdl-coding-style.adoc)), a dopunjena su pravilima alata [*VHDL Style Guide* (VSG)](https://github.com/jeremiah-c-leary/vhdl-style-guide) kojim se stil provjerava. Alat za provjeru stila kursa održava se u zasebnom repozitorijumu [vhdl-style-tools](https://github.com/etf-unibl/vhdl-style-tools). Sva pravila su objedinjena u dokumentu [Pravila stila za VHDL opise](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.0.0/docs/vhdl-style-rules.md) (dostupan i kao [PDF](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.0.0/docs/vhdl-style-rules.pdf)). Ova pravila je potrebno striktno pratiti za svaki modul koji čini neki projekat opisan VHDL jezikom (uključujući *testbench* fajlove).
+Opis svakog dizajna u VHDL jeziku treba da bude uniformno stilizovan prema pravilima kursa. Pravila su zasnovana na smjernicama *VHDL coding style* koje su dio [*Open Hardware Repository*](https://gitlab.com/ohwr/project/vhdl-style/-/wikis/home) projekta (dostupne i kao [HTML stranica](https://gitlab.com/ohwr/project/vhdl-style/blob/master/doc/vhdl-coding-style.adoc)), a dopunjena su pravilima alata [*VHDL Style Guide* (VSG)](https://github.com/jeremiah-c-leary/vhdl-style-guide) kojim se stil provjerava. Alat za provjeru stila kursa održava se u zasebnom repozitorijumu [vhdl-style-tools](https://github.com/etf-unibl/vhdl-style-tools). Sva pravila su objedinjena u dokumentu [Pravila stila za VHDL opise](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.1.0/docs/vhdl-style-rules.md) (dostupan i kao [PDF](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.1.0/docs/vhdl-style-rules.pdf)). Ova pravila je potrebno striktno pratiti za svaki modul koji čini neki projekat opisan VHDL jezikom (uključujući *testbench* fajlove).
 
 ### Zaglavlje fajla
 
@@ -60,7 +60,7 @@ python -m pip install -r requirements.txt
 
 (na *Linux* i *macOS* platformama okruženje se aktivira komandom `source .venv/bin/activate`). Komanda `vhdl-style` je dostupna samo u okruženju u kojem je alat instaliran, pa virtuelno okruženje treba aktivirati u svakom novom terminalu.
 
-Opciono, ako je instaliran simulator [GHDL](https://github.com/ghdl/ghdl), alat dodatno provjerava da li su opisi u skladu sa standardom VHDL-93 (pravilo `S-01 [VHDLVersion]`). Na *GitHub* platformi ova provjera se izvršava uvijek.
+Opciono, ako je instaliran simulator [GHDL](https://github.com/ghdl/ghdl), alat dodatno provjerava da li su opisi u skladu sa standardom VHDL-2008 (pravilo `S-01 [VHDLVersion]`). Na *GitHub* platformi ova provjera se izvršava uvijek.
 
 ### Provjera stila
 
@@ -90,11 +90,11 @@ Za svaki fajl alat ispisuje pronađene greške u obliku `fajl:linija: pravilo --
   assignments\55\counter_ctrl.vhd:79: if_002 -- Remove enclosing ()'s
 
 1 file(s) checked, 5 violation(s).
-Rules: https://github.com/etf-unibl/vhdl-style-tools/blob/v1.0.0/docs/vhdl-style-rules.en.md
+Rules: https://github.com/etf-unibl/vhdl-style-tools/blob/v1.1.0/docs/vhdl-style-rules.en.md
 Hint: many violations can be fixed automatically with --fix.
 ```
 
-Oznaka pravila (npr. `port_025` ili `pds_001`) može se potražiti u dokumentu [Pravila stila za VHDL opise](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.0.0/docs/vhdl-style-rules.md). Pravila čija oznaka počinje sa `pds_` su pravila kursa, a njihov opis počinje nazivom OHWR pravila u uglastim zagradama (npr. `[FileHeader]`). Oznake ostalih pravila su oznake VSG pravila, detaljno opisanih (sa primjerima) u [VSG dokumentaciji](https://vhdl-style-guide.readthedocs.io/en/latest/rules.html).
+Oznaka pravila (npr. `port_025` ili `pds_001`) može se potražiti u dokumentu [Pravila stila za VHDL opise](https://github.com/etf-unibl/vhdl-style-tools/blob/v1.1.0/docs/vhdl-style-rules.md). Pravila čija oznaka počinje sa `pds_` su pravila kursa, a njihov opis počinje nazivom OHWR pravila u uglastim zagradama (npr. `[FileHeader]`). Oznake ostalih pravila su oznake VSG pravila, detaljno opisanih (sa primjerima) u [VSG dokumentaciji](https://vhdl-style-guide.readthedocs.io/en/latest/rules.html).
 
 ### Automatska ispravka
 

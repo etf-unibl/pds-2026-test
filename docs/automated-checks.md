@@ -12,7 +12,7 @@ Provjere su organizovane kao *workflow* `verification` sa sljedećim poslovima:
 | ------ | ------ | ------ |
 | `classify` | da li naslov sadrži broj postojećeg zadatka i vrstu zadatka na osnovu labele: probni (`good first issue`) ili zadatak koji se ocjenjuje (labela grupe zadataka `assignment-1` do `assignment-4`) | sve zadatke |
 | `pr-checks` | pravila predaje: naslov *pull request*-a jednak `Issue #<N> : <naslov zadatka>`, naziv grane počinje brojem zadatka, zadatak je dodijeljen autoru *pull request*-a, izmijenjeni su samo fajlovi u folderu `assignments/<N>`, svi komiti su potpisani, poruke komita prate propisani format i opis *pull request*-a prati šablon | sve zadatke |
-| `linter` | stil VHDL opisa i usklađenost sa standardom VHDL-93 (opisano u uputstvu [Pravila za formatiranje VHDL opisa](vhdl-code-style.md)) | sve zadatke |
+| `linter` | stil VHDL opisa i usklađenost sa standardom VHDL-2008 (opisano u uputstvu [Pravila za formatiranje VHDL opisa](vhdl-code-style.md)) | sve zadatke |
 | `basic-test` | da li fajl `assignments/<N>/test.vhd` postoji i prevodi se bez grešaka | probni zadatak |
 | `testbench` | simulaciju predatih *testbench* fajlova (`*_tb.vhd`) alatom *GHDL* ([Simulacija i testiranje](simulation-and-testing.md#automatsko-pokretanje-testbench-fajlova)) | zadatke uz koje je predat *testbench* |
 | `verif-setup` | određuje zadatak za testove nastavnika | sve zadatke |

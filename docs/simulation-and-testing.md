@@ -6,7 +6,7 @@ Primjeri u nastavku koriste dizajn `nand2` iz fajla `nand2.vhd` i njegov *testbe
 
 ### Preporučeni redoslijed provjere
 
-1. **Sintaksa** - svi fajlovi se prevode bez grešaka (standard VHDL-93).
+1. **Sintaksa** - svi fajlovi se prevode bez grešaka (standard VHDL-2008).
 2. **Simulacija** - *testbench* potvrđuje ispravno ponašanje dizajna.
 3. **Sinteza** - dizajn se uspješno sintetiše u *Quartus* alatu (dizajn koji se simulira ne mora nužno biti sintetizabilan).
 4. **Stil** - `vhdl-style 55` ne prijavljuje greške ([Pravila za formatiranje VHDL opisa](vhdl-code-style.md)).
@@ -17,7 +17,7 @@ Komande se pokreću iz foldera sa fajlovima. Fajlovi se prevode redoslijedom zav
 
 ```
 vlib work
-vcom -93 nand2.vhd nand2_tb.vhd
+vcom -2008 nand2.vhd nand2_tb.vhd
 vsim -c nand2_tb -do "run -all; quit -f"
 ```
 
@@ -32,12 +32,14 @@ Folder `work` i fajl `transcript` koje simulator generiše se ne predaju.
 ### Simulacija iz komandne linije (GHDL)
 
 ```
-ghdl -a --std=93 nand2.vhd nand2_tb.vhd
-ghdl -e --std=93 nand2_tb
-ghdl -r --std=93 nand2_tb --wave=nand2_tb.ghw
+ghdl -a --std=08 nand2.vhd nand2_tb.vhd
+ghdl -e --std=08 nand2_tb
+ghdl -r --std=08 nand2_tb --wave=nand2_tb.ghw
 ```
 
 Komanda `ghdl -a` provjerava sintaksu i analizira fajlove, `ghdl -e` elaborira *testbench*, a `ghdl -r` pokreće simulaciju. Talasni oblici iz fajla `nand2_tb.ghw` pregledaju se alatom [GTKWave](https://gtkwave.sourceforge.net). Ako simulacija ne završava sama (npr. *testbench* sa taktnim signalom koji se ne zaustavlja), dodajte opciju `--stop-time=1us`.
+
+Opcija `--std=08` prevodi kod po standardu VHDL-2008, koji se koristi na kursu. Iste opcije koristi i automatska provjera na *GitHub*-u. U *Quartus* projektu standard se bira u podešavanjima projekta (vidi [Instalacija alata](tools-setup.md#quartus-i-simulator)).
 
 ### Sinteza u Quartus alatu
 
@@ -91,9 +93,9 @@ Svaki *testbench* predat uz zadatak automatski se simulira u poslu `testbench` (
 Posao izvršava iste komande koje možete pokrenuti i lokalno, iz foldera `assignments/<N>`:
 
 ```
-ghdl -i --std=93 *.vhd
-ghdl -m --std=93 nand2_tb
-ghdl -r --std=93 nand2_tb --stop-time=10ms --assert-level=error --wave=nand2_tb.ghw
+ghdl -i --std=08 *.vhd
+ghdl -m --std=08 nand2_tb
+ghdl -r --std=08 nand2_tb --stop-time=10ms --assert-level=error --wave=nand2_tb.ghw
 ```
 
 Komanda `ghdl -i` učitava sve fajlove iz foldera, a `ghdl -m` ih prevodi potrebnim redoslijedom. Talasni oblici iz simulacije dostupni su i kao artifakt `testbench-waveforms` na stranici pokretanja provjera.

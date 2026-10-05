@@ -11,6 +11,7 @@
 - [Pravila za formatiranje VHDL opisa](docs/vhdl-code-style.md)
 - [Dokumentovanje dizajna](docs/design-documentation.md)
 - [Simulacija i testiranje](docs/simulation-and-testing.md)
+- [Video tutorijali](docs/video-tutorials.md)
 - [Automatske provjere](docs/automated-checks.md)
 - [Rad na projektu](docs/project-workflow.md)
 - [Evidencija utrošenog vremena](docs/time-tracking.md)
