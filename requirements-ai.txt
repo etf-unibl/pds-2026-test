@@ -1,0 +1,6 @@
+# Tools for the AI assistant plugins of the course (https://github.com/etf-unibl/pds-plugins):
+# the course tools (style check) plus pds-tools, the read-only helpers the plugins use.
+#   python -m pip install -r requirements-ai.txt
+# The CI installs only requirements.txt.
+-r requirements.txt
+pds-tools @ git+https://github.com/etf-unibl/pds-plugins@main#subdirectory=tools/pds-tools

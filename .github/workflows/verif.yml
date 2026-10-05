@@ -87,7 +87,7 @@ jobs:
       - name: Install the VHDL style tools
         run: pip install -r requirements.txt
 
-      # GHDL analyses the files as VHDL-93 ([VHDLVersion] rule)
+      # GHDL analyses the files as VHDL-2008 ([VHDLVersion] rule)
       - name: Setup GHDL
         uses: ghdl/setup-ghdl@v1
         with:
@@ -98,7 +98,7 @@ jobs:
         run: vhdl-style "$ISSUE"
 
   # This job checks test assignments (label "good first issue"): the file
-  # assignments/<issue>/test.vhd must exist and compile as VHDL-93
+  # assignments/<issue>/test.vhd must exist and compile as VHDL-2008
   basic-test:
     needs: classify
     if: ${{ needs.classify.outputs.kind == 'test' }}
@@ -127,12 +127,13 @@ jobs:
             exit 1
           fi
           echo "Analysing $FILE ..."
-          ghdl -a --std=93 --workdir="$RUNNER_TEMP" "$FILE"
+          ghdl -a --std=08 --workdir="$RUNNER_TEMP" "$FILE"
           echo "$FILE compiles without errors."
 
   # This job runs the student's testbenches (assignments/<issue>/*_tb.vhd) with GHDL. A testbench
   # fails if it does not compile or reports an assertion of severity error or failure.
   # The testbench entity must have the same name as its file (e.g. nand2_tb in nand2_tb.vhd).
+  # The course uses VHDL-2008 (--std=08), like the style check ([VHDLVersion] rule).
   testbench:
     needs: classify
     if: ${{ needs.classify.outputs.kind != 'example' && needs.classify.outputs.testbenches != '' }}
@@ -157,15 +158,15 @@ jobs:
         run: |
           cd "assignments/$ISSUE"
           mkdir -p "$RUNNER_TEMP/ghdl" waves
-          ghdl -i --std=93 --workdir="$RUNNER_TEMP/ghdl" *.vhd
+          ghdl -i --std=08 --workdir="$RUNNER_TEMP/ghdl" *.vhd
           FAILED=""
           for TB_FILE in $TESTBENCHES; do
             TB=${TB_FILE%.vhd}
             echo "::group::$TB"
-            if ! ghdl -m --std=93 --workdir="$RUNNER_TEMP/ghdl" "$TB"; then
+            if ! ghdl -m --std=08 --workdir="$RUNNER_TEMP/ghdl" "$TB"; then
               echo "::error file=assignments/$ISSUE/$TB_FILE::Testbench $TB does not compile (the entity must be named $TB, like its file)."
               FAILED="$FAILED $TB"
-            elif ! ghdl -r --std=93 --workdir="$RUNNER_TEMP/ghdl" "$TB" --stop-time="$STOP_TIME" --assert-level=error --wave="waves/$TB.ghw"; then
+            elif ! ghdl -r --std=08 --workdir="$RUNNER_TEMP/ghdl" "$TB" --stop-time="$STOP_TIME" --assert-level=error --wave="waves/$TB.ghw"; then
               echo "::error file=assignments/$ISSUE/$TB_FILE::Testbench $TB failed (assertion of severity error or failure)."
               FAILED="$FAILED $TB"
             else

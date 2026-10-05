@@ -1,3 +1,3 @@
 # VHDL style check (vhdl-style command), see https://github.com/etf-unibl/vhdl-style-tools
 # Update the tag to move the course to a newer version of the style rules.
-vhdl-style-tools @ git+https://github.com/etf-unibl/vhdl-style-tools@v1.0.0
+vhdl-style-tools @ git+https://github.com/etf-unibl/vhdl-style-tools@v1.1.0
