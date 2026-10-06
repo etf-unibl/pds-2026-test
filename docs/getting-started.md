@@ -33,6 +33,30 @@ U uputstvima se koriste sljedeće oznake koje je potrebno zamijeniti stvarnim vr
 
 13. U drugom dijelu kursa rad se odvija u timovima, prema uputstvu [Rad na projektu](project-workflow.md).
 
+### 5. AI asistenti (opciono)
+
+Za kurs postoje dodaci (*plugin*-ovi) za AI asistente koji se pokreću u terminalu: *Claude Code*, *GitHub Copilot CLI* i *Antigravity CLI*. Poznaju tok rada na kursu, pravila automatskih provjera, stranice tema predavanja i kod primjera. Asistent objašnjava zadatke, komande i greške, pomaže pri testiranju i učenju, ali komande koje mijenjaju repozitorijum ili *GitHub* (komit, slanje izmjena, *pull request*) pokrećete vi, a fajlove u folderu `assignments/` ne mijenja.
+
+Instalacija ukratko:
+
+1. Instalirajte jedan AI alat i prijavite se u njega (npr. *GitHub Copilot CLI* je besplatan za studente kroz [GitHub Education](https://education.github.com)).
+2. Instalirajte alate kursa za dodatke u isti *Python* u kojem je `vhdl-style`, i provjerite ih komandom `pds-mcp --list`:
+
+   ```
+   python -m pip install "pds-tools @ git+https://github.com/etf-unibl/pds-marketplace@v0.1.0#subdirectory=tools/pds-tools"
+   ```
+
+3. U AI alatu dodajte *marketplace* kursa i dodatke, npr. u *Claude Code*-u:
+
+   ```
+   /plugin marketplace add etf-unibl/pds-marketplace
+   /plugin install pds-learning@pds-marketplace
+   ```
+
+Detaljno uputstvo za sva tri alata, spisak dodataka, primjere pitanja i rješavanje problema: [srpski](https://github.com/etf-unibl/pds-marketplace/blob/main/docs/students.sr.md) · [English](https://github.com/etf-unibl/pds-marketplace/blob/main/docs/students.en.md).
+
+Kod koji je generisao AI alat mora biti naveden u poruci komita, uz objašnjenje kako je alat korišćen ([Korišćenje AI alata](assignment-submission.md#korišćenje-ai-alata)).
+
 Ako nešto ne radi kako je opisano, pogledajte [Rješavanje čestih problema](troubleshooting.md), a ako tamo ne nađete odgovor, obratite se predmetnom nastavniku.
 
 ### Kontrolna lista

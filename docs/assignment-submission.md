@@ -56,6 +56,22 @@ Preporučuje se korišćenje engleskog jezika u poruci komita, ali to nije obave
 
 Format poruke svakog komita u *pull request*-u provjerava se automatski: prvi red mora biti tačno `Issue #<N> : <naslov zadatka>`, drugi red prazan, a u nastavku mora postojati bar jedna stavka liste (linija koja počinje sa `- `). Komitovi integracije (*merge*) se ne provjeravaju. Uključeni *Git hook*-ovi ([Podešavanje Git okruženja](git-setup.md#uključivanje-git-hook-ova-preporučeno)) provjeravaju isto već prilikom komitovanja i popunjavaju prvi red poruke.
 
+#### Korišćenje AI alata
+
+Ako je bilo koji dio koda u komitu generisao AI alat (uključujući kod preuzet iz odgovora AI asistenta), to se navodi u poruci tog komita, uz objašnjenje kako je alat korišćen: posebna linija `AI-assisted-by: <alat> - <kako je korišćen>` iznad potpisa, po jedna za svaki alat. Primjer:
+
+```
+Issue #55 : Create NAND2 circuit
+
+- Added entity definition for the design
+- Added a testbench that checks all input combinations
+
+AI-assisted-by: GitHub Copilot CLI - generated the testbench loop over all input combinations; I wrote the checks and verified the results
+Signed-off-by: Ime Prezime <12345678+imeprezime@users.noreply.github.com>
+```
+
+Liniju upišite sami (na kraj poruke, iza prazne linije); `git commit -s` potpis dodaje ispod nje. Ako je AI alat samo objašnjavao, a kod ste pisali sami, linija nije potrebna. Automatska provjera ovu liniju ne provjerava, ali je nastavnik pregleda; potpisom i dalje potvrđujete da razumijete i odgovarate za cijelo rješenje. Dodatak `pds-git` (komit) pita da li je AI generisao kod i pomaže da se linija napiše.
+
 ### Naslov i opis *pull request*-a
 
 - Naslov *pull request*-a je identičan prvom redu poruke komita: `Issue #<N> : <naslov zadatka>`.
