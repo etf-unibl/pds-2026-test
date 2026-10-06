@@ -34,11 +34,14 @@ import urllib.error
 import urllib.request
 
 API = "https://api.github.com"
-FIELD_ESTIMATE = "Estimate (h)"
+# "Estimate" is the number field that GitHub's project templates already contain (hours in this course);
+# boards set up by earlier versions of this script have "Estimate (h)" instead, which is still used
+FIELD_ESTIMATE = "Estimate"
+FIELD_ESTIMATE_LEGACY = "Estimate (h)"
 FIELD_SPENT = "Time spent (h)"
 FIELD_LOGGED = "Time logged (h)"
 FIELD_TOTAL = "Time total (h)"
-NUMBER_FIELDS = (FIELD_ESTIMATE, FIELD_SPENT, FIELD_LOGGED, FIELD_TOTAL)
+estimate_field = FIELD_ESTIMATE  # name of the estimate field of the board, set by ensure_fields()
 REPORT_LABEL = "time-report"
 MAX_ENTRY_HOURS = 24
 # In a public repository anyone can comment; only comments of the issue assignees and of
@@ -150,10 +153,13 @@ def find_project(owner, name):
 
 
 def ensure_fields(project_id):
+    global estimate_field
     data = gql("""query($p: ID!) { node(id: $p) { ... on ProjectV2 { fields(first: 50) {
         nodes { ... on ProjectV2FieldCommon { id name dataType } } } } } }""", p=project_id)
     fields = {f["name"]: f for f in data["node"]["fields"]["nodes"] if f}
-    for name in NUMBER_FIELDS:
+    # use the board's own estimate field; create one only if the board has neither name
+    estimate_field = FIELD_ESTIMATE_LEGACY if FIELD_ESTIMATE not in fields and FIELD_ESTIMATE_LEGACY in fields else FIELD_ESTIMATE
+    for name in (estimate_field, FIELD_SPENT, FIELD_LOGGED, FIELD_TOTAL):
         if name not in fields:
             created = gql("""mutation($p: ID!, $n: String!) { createProjectV2Field(input: {
                 projectId: $p, dataType: NUMBER, name: $n }) { projectV2Field {
@@ -162,7 +168,7 @@ def ensure_fields(project_id):
             print(f"created project field '{name}'")
         elif fields[name]["dataType"] != "NUMBER":
             sys.exit(f"::error::Project field '{name}' exists but is not a Number field.")
-    return {name: fields[name]["id"] for name in NUMBER_FIELDS}
+    return {name: fields[name]["id"] for name in (estimate_field, FIELD_SPENT, FIELD_LOGGED, FIELD_TOTAL)}
 
 
 def numbers(item):
@@ -316,7 +322,7 @@ def mode_report(out_dir):
         entries += found
         logged = round(sum(e["hours"] for e in found), 2)
         spent, total = update_item(project["id"], field_ids, item["id"], values, logged)
-        estimate = values.get(FIELD_ESTIMATE) or 0
+        estimate = values.get(estimate_field) or 0
         assignees = [a["login"] for a in c["assignees"]["nodes"]] or [t["unassigned"]]
         for login in assignees:
             student(login)["estimate"] += estimate / len(assignees)

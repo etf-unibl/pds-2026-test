@@ -30,7 +30,7 @@ Zadatke za prvi dio kursa kreira predmetni nastavnik. U radu na projektu zadatke
 2. Kliknite na naziv zadatka i dodajte opis (**Edit**, a zatim **Update comment**). Opis treba da bude dovoljno jasan da bilo koji član tima može da razumije šta je cilj zadatka i kada se smatra završenim.
 3. U desnom dijelu prozora dodijelite zadatak članu tima (**Assignees**) i konvertujte ga u *issue* (**Convert to issue**), pri čemu birate repozitorijum kursa. Tek nakon konverzije zadatak dobija broj (npr. `#55`) i vidljiv je u tabulatoru **Issues**.
 4. Dodajte labelu (**Labels**, tipično `task`) i odgovarajući *milestone* (**Milestone**).
-5. U sekciji projekta unesite procjenu potrebnog vremena u polje `Estimate (h)`. Utrošeno vrijeme evidentira se tokom rada, kako je opisano u uputstvu [Evidencija utrošenog vremena](time-tracking.md).
+5. U sekciji projekta unesite procjenu potrebnog vremena u satima u polje `Estimate`. Utrošeno vrijeme evidentira se tokom rada, kako je opisano u uputstvu [Evidencija utrošenog vremena](time-tracking.md).
 
 ### Kreiranje grane za zadatak
 

@@ -8,7 +8,7 @@ Svaki zadatak na radnoj ploči ima sljedeća polja:
 
 | Polje | Ko ga popunjava | Značenje |
 | ------ | ------ | ------ |
-| `Estimate (h)` | student | procjena potrebnog vremena u satima, unosi se na početku rada na zadatku |
+| `Estimate` | student | procjena potrebnog vremena u satima, unosi se na početku rada na zadatku |
 | `Time spent (h)` | student | ručno unijeto utrošeno vrijeme u satima (ukupno, ne po danu) |
 | `Time logged (h)` | automatski | zbir unosa iz komentara `/spent` |
 | `Time total (h)` | automatski | `Time spent (h)` + `Time logged (h)` |
