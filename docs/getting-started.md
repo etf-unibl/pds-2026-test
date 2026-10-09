@@ -43,7 +43,7 @@ Instalacija ukratko:
 2. Instalirajte alate kursa za dodatke u isti *Python* u kojem je `vhdl-style`, i provjerite ih komandom `pds-mcp --list`:
 
    ```
-   python -m pip install "pds-tools @ git+https://github.com/etf-unibl/pds-marketplace@v0.2.0#subdirectory=tools/pds-tools"
+   python -m pip install "pds-tools @ git+https://github.com/etf-unibl/pds-marketplace@v0.2.2#subdirectory=tools/pds-tools"
    ```
 
 3. U AI alatu dodajte *marketplace* kursa i dodatke, npr. u *Claude Code*-u:

@@ -6,7 +6,7 @@ Probni zadatak služi da se cijeli postupak predaje (grana, komit, *pull request
 
 Predmetni nastavnik na početku kursa svakom studentu kreira zaseban probni zadatak (*issue*) i dodjeljuje mu ga. Probni zadatak se od ostalih razlikuje po sljedećem:
 
-- označen je labelom `good first issue`, dok su zadaci koji se ocjenjuju označeni labelom grupe zadataka kojoj pripadaju (`assignment-1` do `assignment-4`),
+- označen je labelom `good first issue`, dok su zadaci koji se ocjenjuju označeni labelom teme zadataka kojoj pripadaju (`assignment-1` do `assignment-4`),
 - automatske provjere za njega ne pokreću testove nastavnika (simulaciju i sintezu), već provjeravaju da li fajl `test.vhd` postoji i da li se prevodi bez grešaka, stil opisa i poštovanje pravila predaje.
 
 Na osnovu labele automatske provjere određuju da li se radi o probnom zadatku ili zadatku koji se ocjenjuje. Labele postavlja nastavnik i studenti ih ne mijenjaju.

@@ -3,7 +3,7 @@
 #   issue         issue number (first number in the pull request title, or the manual input)
 #   kind          test ("good first issue" label), assignment (exactly one "assignment-<n>" label)
 #                 or example (issue 0 of a manual run: NAND2 example of the verification environment)
-#   group         assignment group <n> (graded assignments only)
+#   topic         assignment topic <n> (graded assignments only)
 #   lookup_table  lookup table of the verification repository (PDS_LOOKUP_TABLE or the default
 #                 pds_<year>_issues.lookup, <year> = first 20xx in the repository name, else the current year)
 #
@@ -31,7 +31,7 @@ fi
 # Issue 0 is the NAND2 example of the verification environment (manual runs only)
 if [ "$ISSUE" = "0" ] && [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
   echo "Verification environment example (issue 0), lookup table $LOOKUP_TABLE"
-  { echo "issue=0"; echo "kind=example"; echo "group="; } >> "$GITHUB_OUTPUT"
+  { echo "issue=0"; echo "kind=example"; echo "topic="; } >> "$GITHUB_OUTPUT"
   exit 0
 fi
 
@@ -46,17 +46,17 @@ fi
 
 LABELS=$(echo "$JSON" | jq -r '.labels[].name')
 IS_TEST=$(echo "$LABELS" | grep -c -x 'good first issue' || true)
-GROUP_LABELS=$(echo "$LABELS" | grep -x -E 'assignment-[0-9]+' || true)
-N_GROUPS=$(echo -n "$GROUP_LABELS" | grep -c . || true)
-if [ "$IS_TEST" -gt 0 ] && [ "$N_GROUPS" -eq 0 ]; then
+TOPIC_LABELS=$(echo "$LABELS" | grep -x -E 'assignment-[0-9]+' || true)
+N_TOPICS=$(echo -n "$TOPIC_LABELS" | grep -c . || true)
+if [ "$IS_TEST" -gt 0 ] && [ "$N_TOPICS" -eq 0 ]; then
   KIND=test
-  GROUP=
-elif [ "$N_GROUPS" -eq 1 ] && [ "$IS_TEST" -eq 0 ]; then
+  TOPIC=
+elif [ "$N_TOPICS" -eq 1 ] && [ "$IS_TEST" -eq 0 ]; then
   KIND=assignment
-  GROUP=${GROUP_LABELS#assignment-}
+  TOPIC=${TOPIC_LABELS#assignment-}
 else
   echo "::error::Issue #$ISSUE must have either the 'good first issue' label or exactly one 'assignment-<n>' label (labels: $(echo "$LABELS" | paste -sd ',' -))."
   exit 1
 fi
-echo "Issue #$ISSUE, type: $KIND${GROUP:+, assignment group $GROUP}, lookup table $LOOKUP_TABLE"
-{ echo "issue=$ISSUE"; echo "kind=$KIND"; echo "group=$GROUP"; } >> "$GITHUB_OUTPUT"
+echo "Issue #$ISSUE, type: $KIND${TOPIC:+, assignment topic $TOPIC}, lookup table $LOOKUP_TABLE"
+{ echo "issue=$ISSUE"; echo "kind=$KIND"; echo "topic=$TOPIC"; } >> "$GITHUB_OUTPUT"
